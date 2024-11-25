@@ -8,6 +8,10 @@ import (
 
 type Id uuid.UUID
 
+func (id Id) String() string {
+	return uuid.UUID(id).String()
+}
+
 func NewId() Id {
 	return Id(uuid.New())
 }
@@ -22,15 +26,21 @@ type Application struct {
 	data map[Id]User
 }
 
-var application = Application{
-	data: make(map[Id]User),
+func New() Application {
+	return Application{
+		data: make(map[Id]User),
+	}
 } 
 
-func FindAll() map[Id]User {
-	return application.data
+func (application *Application) FindAll() map[string]User {
+	users := make(map[string]User)
+	for id, user := range application.data {
+		users[id.String()] = user
+	}
+	return users
 }
 
-func FindById(id Id) *User {
+func (application *Application) FindById(id Id) *User {
 	value, ok := application.data[id]
 	if !ok {
 		return nil
@@ -38,12 +48,12 @@ func FindById(id Id) *User {
 	return &value
 } 
 
-func Insert(user User) {
+func (application *Application) Insert(user User) {
 	id := NewId();
 	application.data[id] = user
 }
 
-func Update(id Id, user User) error {
+func (application *Application) Update(id Id, user User) error {
 	_, ok := application.data[id]
 
 	if !ok {
@@ -55,6 +65,6 @@ func Update(id Id, user User) error {
 	return nil
 }
 
-func Delete(id Id) {
+func (application *Application) Delete(id Id) {
 	delete(application.data, id)
 }
